@@ -10,8 +10,11 @@ import {drawHand} from './utils'
 
 import * as fp from 'fingerpose'
 
+import { Wave, Random } from 'react-animated-text';
+
+
 //Custom gesture definition
-import { palmOpenGestureLeft, palmOpenGestureRight} from './utils'
+import { palmOpenGestureLeft, palmOpenGestureRight, palmOuterRight, palmOuterLeft} from './utils'
 
 const useStyles = makeStyles((theme) => ({
     camera: {
@@ -19,6 +22,19 @@ const useStyles = makeStyles((theme) => ({
         width: '45vw',
         height: 480,
         float: 'right'
+    },
+    predictionTextContainer: {
+        position: 'absolute',
+        top: 500,
+        width: '45vw',
+        height: 200,
+        float: 'right',
+        color: 'white',
+        textAlign: 'center'
+    },
+    predictionText: {
+        fontSize: '10rem',
+        fontWeight: 100
     }
 }));
 
@@ -61,7 +77,9 @@ function Camera(props) {
             if (hand.length > 0) {
                 const GE = new fp.GestureEstimator([
                     palmOpenGestureLeft,
-                    palmOpenGestureRight
+                    palmOpenGestureRight,
+                    palmOuterRight,
+                    palmOuterLeft
                 ])
                 const estimatedGestures = await GE.estimate(hand[0].landmarks, 7);
                 // console.log(estimatedGestures)
@@ -75,10 +93,13 @@ function Camera(props) {
                         bestGesture = gesture
                     }
                 })
+
                 if (bestGesture !== '') {
                     console.log(bestGesture.name)
                     props.onDetection(bestGesture.name)
-                    setPrediction(bestGesture)
+                    if (prediction.name !== bestGesture.name) {
+                        setPrediction(bestGesture)
+                    }
                 }
             }
 
@@ -87,6 +108,25 @@ function Camera(props) {
             const ctx = canvasRef.current.getContext("2d")
             drawHand(hand, ctx)
         }
+    }
+
+    const predictionBeautify = (prediction) => {
+        let text = ''
+        switch (prediction){
+            case 'palm_open_right':
+                text = 'PLAY'
+                break
+            case 'palm_open_left':
+                text = 'STOP'
+                break
+            case 'palm_outer_right':
+                text = 'PREVIOUS'
+                break
+            case 'palm_outer_left':
+                text = 'NEXT'
+        }
+
+        return text
     }
 
     useEffect(() =>{
@@ -103,9 +143,21 @@ function Camera(props) {
                 ref={canvasRef}
                 className={classes.camera}
             />
-            <h1>
-                {prediction ? prediction.name : 'No prediction available'}
-            </h1>
+            {
+             prediction.name ? (
+                 <div className={classes.predictionTextContainer}>
+                     <h1 className={classes.predictionText}>
+                         <Random
+                             text={predictionBeautify(prediction.name)}
+                             iterations={1}
+                             effect="verticalFadeIn"
+                             effectChange={1}
+                             effectDirection="up"
+                         />
+                     </h1>
+                 </div>
+             ): null
+            }
         </div>
     )
 }

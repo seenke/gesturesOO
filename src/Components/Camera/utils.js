@@ -90,7 +90,34 @@ palmOpenGestureLeft.addDirection(fp.Finger.Ring, fp.FingerDirection.VerticalUp, 
 
 palmOpenGestureLeft.addDirection(fp.Finger.Pinky, fp.FingerDirection.DiagonalUpRight, 1.0)
 
+const palmOuterRight = new fp.GestureDescription('palm_outer_right')
+palmOuterRight.addCurl(fp.Finger.all, fp.FingerCurl.NoCurl, 1.0)
+palmOuterRight.addDirection(fp.Finger.Thumb, fp.FingerDirection.DiagonalDownRight, 1.0)
+
+palmOuterRight.addDirection(fp.Finger.Index, fp.FingerDirection.HorizontalRight, 1.0)
+
+palmOuterRight.addDirection(fp.Finger.Middle, fp.FingerDirection.HorizontalRight, 1.0)
+
+palmOuterRight.addDirection(fp.Finger.Ring, fp.FingerDirection.HorizontalRight, 1.0)
+
+palmOuterRight.addDirection(fp.Finger.Pinky, fp.FingerDirection.HorizontalRight, 1.0)
+
+const palmOuterLeft = new fp.GestureDescription('palm_outer_left')
+palmOuterLeft.addCurl(fp.Finger.all, fp.FingerCurl.NoCurl, 1.0)
+palmOuterLeft.addDirection(fp.Finger.Thumb, fp.FingerDirection.DiagonalUpLeft, 1.0)
+
+palmOuterLeft.addDirection(fp.Finger.Index, fp.FingerDirection.HorizontalLeft, 1.0)
+
+palmOuterLeft.addDirection(fp.Finger.Middle, fp.FingerDirection.HorizontalLeft, 1.0)
+
+palmOuterLeft.addDirection(fp.Finger.Ring, fp.FingerDirection.HorizontalLeft, 1.0)
+
+palmOuterLeft.addDirection(fp.Finger.Pinky, fp.FingerDirection.HorizontalLeft, 1.0)
+
+
 export {
     palmOpenGestureRight,
-    palmOpenGestureLeft
+    palmOpenGestureLeft,
+    palmOuterRight,
+    palmOuterLeft
 }

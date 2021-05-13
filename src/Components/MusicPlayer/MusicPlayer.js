@@ -8,7 +8,11 @@ import StopIcon from '@material-ui/icons/Stop'
 import { makeStyles } from '@material-ui/core/styles';
 import LinearProgress from '@material-ui/core/LinearProgress';
 
-import logo from '../../tracks/placeholder.jpeg';
+import coverGam from '../../tracks/childishGambion/cover.jpeg';
+import songGam from '../../tracks/childishGambion/song.mp3'
+
+import coverKid from '../../tracks/kidCudi/cover.jpeg';
+import songKid from '../../tracks/kidCudi/song.mp3';
 
 const useStyles = makeStyles((theme) => ({
     icon: {
@@ -33,7 +37,9 @@ const useStyles = makeStyles((theme) => ({
     },
     albumCover: {
         maxWidth: 600,
-        maxHeight: 800
+        maxHeight: 600,
+        minWidth: 200,
+        minHeight: 200
     },
     songInfo: {
         color: 'white'
@@ -66,42 +72,76 @@ const MusicPlayer = forwardRef((props, ref) => {
             }
         },
         next() {
-            console.log('next')
+            loadSong('next')
         },
         previous() {
-            console.log('previous')
+            loadSong('previous')
         }
     }))
 
     const songs = [
         {
-            url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
-            image: '/tracks/placeholder.jpeg'
+            song: songKid ,
+            image: coverKid,
+            author: 'Kid Cudi',
+            title: "Day 'N' Nite"
+        },
+        {
+            song: songGam,
+            image: coverGam,
+            author: 'Chidlish Gambino',
+            title: 'Redbone'
         }
     ]
 
     const calculateProgress = () => {
         setProgress(() => {
-            return song.currentTime / song.duration
+            console.log("UPDATING", (song.currentTime / song.duration) * 100)
+            return (song.currentTime / song.duration) * 100
         })
+        setTimeout(() => {
+            calculateProgress()
+        }, 100)
+    }
+
+    const loadSong = async (position) => {
+        let offset = position === 'next' ? 1 : -1
+        const newIndex = Math.abs ((songIndex + offset) % songs.length)
+
+        console.log(songs[offset])
+
+        await setSongIndex(newIndex)
+
+        await song.pause()
+        await setPlay(false)
+
+
+
+        await setSong(new Audio(songs[newIndex].song))
+        await setProgress(0)
+
+        console.log(play, songIndex, progress)
     }
 
     // State for knowing if music player is playing or not
     const [play, setPlay] = useState(false)
 
+
+    // State for pointer in playlist
+    const [songIndex, setSongIndex] = useState(0)
+
     //State for currently playing song
-    const [song, setSong] = useState(new Audio(songs[0].url))
+    const [song, setSong] = useState(new Audio(songs[songIndex].song))
 
     //State for progress
-    const [progress, setProgress] = useState(30)
+    const [progress, setProgress] = useState(0)
 
     useEffect(() => {
+        console.log("USE EFFECT")
         song.addEventListener('ended', () => {
             setPlay(false)
         })
-        setTimeout(() => {
-            calculateProgress()
-        }, 100)
+        calculateProgress()
     }, [])
 
     const togglePlay = () => {
@@ -119,11 +159,11 @@ const MusicPlayer = forwardRef((props, ref) => {
                 <h2 className={classes.playerStatus}>{play? 'Playing now' : 'Currently paused'}</h2>
             </div>
             <div>
-                <img src={logo} className={classes.albumCover}/>
+                <img src={songs[songIndex].image} className={classes.albumCover}/>
             </div>
             <div className={classes.songInfo}>
-                <h1>Kid Cudi</h1>
-                <p>Day'n Night</p>
+                <h1>{songs[songIndex].author}</h1>
+                <p>{songs[songIndex].title}</p>
             </div>
             <div className={classes.root}>
                 <LinearProgress variant="determinate" value={progress} />
@@ -131,13 +171,13 @@ const MusicPlayer = forwardRef((props, ref) => {
             <div className={classes.mainContainer}>
                 <div className={classes.playerControls}>
                     <IconButton className={classes.iconButton}>
-                        <SkipPreviousIcon className={classes.icon}/>
+                        <SkipPreviousIcon className={classes.icon} onClick={() => loadSong('previous')}/>
                     </IconButton>
                     <IconButton className={classes.iconButton}>
                         { play ? <PlayArrowIcon className={classes.iconPlay} onClick={togglePlay}/> : <StopIcon className={classes.iconPlay} onClick={togglePlay}/> }
                     </IconButton>
                     <IconButton className={classes.iconButton}>
-                        <SkipNextIcon className={classes.icon}/>
+                        <SkipNextIcon className={classes.icon} onClick={()=> loadSong('next')}/>
                     </IconButton>
                 </div>
             </div>

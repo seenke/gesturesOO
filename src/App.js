@@ -39,6 +39,14 @@ function App() {
                 console.log("APP got palm open left")
                 musicPlayer.current.pause()
                 break
+            case 'palm_outer_right':
+                console.log("APP got palm_outer_right")
+                musicPlayer.current.next()
+                break
+            case 'palm_outer_left':
+                console.log("APP got palm_outer_left")
+                musicPlayer.current.previous()
+                break
 
         }
     }
