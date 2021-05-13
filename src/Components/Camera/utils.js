@@ -1,3 +1,5 @@
+import * as fp from 'fingerpose'
+
 const fingerJoints = {
     thumb: [0, 1, 2, 3, 4],
     indexFinger: [0, 5, 6, 7, 8],
@@ -50,4 +52,45 @@ export const drawHand = (predictions, ctx) => {
             }
         })
     }
+}
+
+const thumbsDownGesture = new fp.GestureDescription('thumbs_down');
+
+thumbsDownGesture.addCurl(fp.Finger.Thumb, fp.FingerCurl.NoCurl, 1.0);
+thumbsDownGesture.addDirection(fp.Finger.Thumb, fp.FingerDirection.VerticalDown, 1.0);
+thumbsDownGesture.addDirection(fp.Finger.Thumb, fp.FingerDirection.DiagonalDownLeft, 0.5);
+thumbsDownGesture.addDirection(fp.Finger.Thumb, fp.FingerDirection.DiagonalDownRight, 0.5);
+
+
+const palmOpenGestureRight = new fp.GestureDescription('palm_open_right')
+palmOpenGestureRight.addCurl(fp.Finger.all, fp.FingerCurl.NoCurl, 1.0)
+palmOpenGestureRight.addDirection(fp.Finger.Thumb, fp.FingerDirection.DiagonalUpRight, 1.0)
+
+palmOpenGestureRight.addDirection(fp.Finger.Index, fp.FingerDirection.DiagonalUpRight, 1.0)
+palmOpenGestureRight.addDirection(fp.Finger.Index, fp.FingerDirection.VerticalUp, 0.5)
+
+palmOpenGestureRight.addDirection(fp.Finger.Middle, fp.FingerDirection.VerticalUp, 1.0)
+
+palmOpenGestureRight.addDirection(fp.Finger.Ring, fp.FingerDirection.VerticalUp, 1.0)
+
+palmOpenGestureRight.addDirection(fp.Finger.Pinky, fp.FingerDirection.DiagonalUpLeft, 1.0)
+
+
+const palmOpenGestureLeft = new fp.GestureDescription('palm_open_left')
+palmOpenGestureLeft.addCurl(fp.Finger.all, fp.FingerCurl.NoCurl, 1.0)
+palmOpenGestureLeft.addDirection(fp.Finger.Thumb, fp.FingerCurl.DiagonalUpLeft, 1.0)
+
+palmOpenGestureLeft.addDirection(fp.Finger.Index, fp.FingerDirection.DiagonalUpLeft, 1.0)
+palmOpenGestureLeft.addDirection(fp.Finger.Index, fp.FingerDirection.VerticalUp, 0.5)
+
+palmOpenGestureLeft.addDirection(fp.Finger.Middle, fp.FingerDirection.VerticalUp, 1.0)
+palmOpenGestureLeft.addDirection(fp.Finger.Middle, fp.FingerDirection.DiagonalUpLeft, 0.4)
+
+palmOpenGestureLeft.addDirection(fp.Finger.Ring, fp.FingerDirection.VerticalUp, 1.0)
+
+palmOpenGestureLeft.addDirection(fp.Finger.Pinky, fp.FingerDirection.DiagonalUpRight, 1.0)
+
+export {
+    palmOpenGestureRight,
+    palmOpenGestureLeft
 }

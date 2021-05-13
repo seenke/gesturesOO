@@ -1,5 +1,5 @@
 
-import React, {useRef, useEffect} from 'react'
+import React, {useRef, useEffect, useState} from 'react'
 
 import * as tf from "@tensorflow/tfjs"
 import * as handpose from "@tensorflow-models/handpose"
@@ -8,7 +8,10 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import {drawHand} from './utils'
 
-import fp from 'fingerpose'
+import * as fp from 'fingerpose'
+
+//Custom gesture definition
+import { palmOpenGestureLeft, palmOpenGestureRight} from './utils'
 
 const useStyles = makeStyles((theme) => ({
     camera: {
@@ -19,17 +22,14 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
-function Camera() {
+function Camera(props) {
 
     const classes = useStyles()
 
     const webcamRef = useRef(null)
     const canvasRef = useRef(null)
 
-    const GE = new fp.GestureEstimator([
-        fp.Gestures.VictoryGesture,
-        fp.Gestures.ThumbsUpGesture
-    ])
+    const [prediction, setPrediction] = useState(false)
 
     const runHandpose = async () => {
         const net = await handpose.load()
@@ -57,9 +57,31 @@ function Camera() {
             canvasRef.current.height = videoHeight
 
             const hand = await net.estimateHands(video)
-            console.log(hand)
 
-            // const estimatedGestures = GE.estimate(hand.landmarks, 7,5)
+            if (hand.length > 0) {
+                const GE = new fp.GestureEstimator([
+                    palmOpenGestureLeft,
+                    palmOpenGestureRight
+                ])
+                const estimatedGestures = await GE.estimate(hand[0].landmarks, 7);
+                // console.log(estimatedGestures)
+
+                let bestGesture = ''
+                estimatedGestures.gestures.forEach((gesture) => {
+                    if (bestGesture === '') {
+                        bestGesture = gesture
+                    }
+                    if (bestGesture !== '' && bestGesture.confidence < gesture.confidence) {
+                        bestGesture = gesture
+                    }
+                })
+                if (bestGesture !== '') {
+                    console.log(bestGesture.name)
+                    props.onDetection(bestGesture.name)
+                    setPrediction(bestGesture)
+                }
+            }
+
 
             //Draw mesh
             const ctx = canvasRef.current.getContext("2d")
@@ -81,6 +103,9 @@ function Camera() {
                 ref={canvasRef}
                 className={classes.camera}
             />
+            <h1>
+                {prediction ? prediction.name : 'No prediction available'}
+            </h1>
         </div>
     )
 }
