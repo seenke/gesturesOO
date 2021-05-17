@@ -47,7 +47,14 @@ function App() {
                 console.log("APP got palm_outer_left")
                 musicPlayer.current.previous()
                 break
-
+            case 'thumbs_down':
+                console.log("APP got thumbs_down")
+                musicPlayer.current.volume_down()
+                break
+            case 'thumbs_up':
+                console.log("APP got thumbs_up")
+                musicPlayer.current.volume_up()
+                break
         }
     }
 

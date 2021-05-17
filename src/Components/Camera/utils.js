@@ -56,11 +56,25 @@ export const drawHand = (predictions, ctx) => {
 
 const thumbsDownGesture = new fp.GestureDescription('thumbs_down');
 
-thumbsDownGesture.addCurl(fp.Finger.Thumb, fp.FingerCurl.NoCurl, 1.0);
-thumbsDownGesture.addDirection(fp.Finger.Thumb, fp.FingerDirection.VerticalDown, 1.0);
+thumbsDownGesture.addCurl(fp.Finger.Thumb, fp.FingerCurl.NoCurl, 2.0);
+thumbsDownGesture.addCurl(fp.Finger.Index, fp.FingerCurl.FullCurl, 1.0);
+thumbsDownGesture.addCurl(fp.Finger.Middle, fp.FingerCurl.FullCurl, 1.0);
+thumbsDownGesture.addCurl(fp.Finger.Ring, fp.FingerCurl.FullCurl, 1.0);
+thumbsDownGesture.addCurl(fp.Finger.Pinky, fp.FingerCurl.FullCurl, 1.0);
+thumbsDownGesture.addDirection(fp.Finger.Thumb, fp.FingerDirection.VerticalDown, 3.0);
 thumbsDownGesture.addDirection(fp.Finger.Thumb, fp.FingerDirection.DiagonalDownLeft, 0.5);
 thumbsDownGesture.addDirection(fp.Finger.Thumb, fp.FingerDirection.DiagonalDownRight, 0.5);
 
+const thumbsUpGesture = new fp.GestureDescription('thumbs_up');
+
+thumbsUpGesture.addCurl(fp.Finger.Thumb, fp.FingerCurl.NoCurl, 2.0);
+thumbsUpGesture.addCurl(fp.Finger.Index, fp.FingerCurl.FullCurl, 1.0);
+thumbsUpGesture.addCurl(fp.Finger.Middle, fp.FingerCurl.FullCurl, 1.0);
+thumbsUpGesture.addCurl(fp.Finger.Ring, fp.FingerCurl.FullCurl, 1.0);
+thumbsUpGesture.addCurl(fp.Finger.Pinky, fp.FingerCurl.FullCurl, 1.0);
+thumbsUpGesture.addDirection(fp.Finger.Thumb, fp.FingerDirection.VerticalUp, 3.0);
+thumbsUpGesture.addDirection(fp.Finger.Thumb, fp.FingerDirection.DiagonalUpLeft, 0.5);
+thumbsUpGesture.addDirection(fp.Finger.Thumb, fp.FingerDirection.DiagonalUpRight, 0.5);
 
 const palmOpenGestureRight = new fp.GestureDescription('palm_open_right')
 palmOpenGestureRight.addCurl(fp.Finger.all, fp.FingerCurl.NoCurl, 1.0)
@@ -119,5 +133,7 @@ export {
     palmOpenGestureRight,
     palmOpenGestureLeft,
     palmOuterRight,
-    palmOuterLeft
+    palmOuterLeft,
+    thumbsDownGesture,
+    thumbsUpGesture
 }

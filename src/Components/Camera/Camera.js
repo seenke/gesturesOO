@@ -6,7 +6,7 @@ import * as handpose from "@tensorflow-models/handpose"
 import Webcam from "react-webcam";
 import { makeStyles } from '@material-ui/core/styles';
 
-import {drawHand} from './utils'
+import {drawHand, thumbsDownGesture, thumbsUpGesture} from './utils'
 
 import * as fp from 'fingerpose'
 
@@ -79,7 +79,9 @@ function Camera(props) {
                     palmOpenGestureLeft,
                     palmOpenGestureRight,
                     palmOuterRight,
-                    palmOuterLeft
+                    palmOuterLeft,
+                    thumbsUpGesture,
+                    thumbsDownGesture
                 ])
                 const estimatedGestures = await GE.estimate(hand[0].landmarks, 7);
                 // console.log(estimatedGestures)
@@ -124,6 +126,12 @@ function Camera(props) {
                 break
             case 'palm_outer_left':
                 text = 'NEXT'
+                break
+            case 'thumbs_down':
+                text = 'VOLUME_DOWN'
+                break
+            case 'thumbs_up':
+                text = 'VOLUME_UP'
         }
 
         return text

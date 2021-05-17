@@ -58,6 +58,7 @@ let player = null
 let position = 0
 let duration = 0
 let playStatus = false
+let volume = 0.5
 
 
 const MusicPlayer = forwardRef((props, ref) => {
@@ -67,7 +68,7 @@ const MusicPlayer = forwardRef((props, ref) => {
     //Get here https://developer.spotify.com/documentation/web-playback-sdk/quick-start/
     const token = 'Insert token';
 
-    /*useImperativeHandle(ref, () => ({
+    useImperativeHandle(ref, () => ({
 
         play() {
             if (!play) {
@@ -80,12 +81,20 @@ const MusicPlayer = forwardRef((props, ref) => {
             }
         },
         next() {
-            loadSong('next')
+            nextTrack()
         },
         previous() {
-            loadSong('previous')
+            previousTrack()
+        },
+        volume_up() {
+            volume += 0.1
+            changeVolume(volume)
+        },
+        volume_down() {
+            volume -= 0.1
+            changeVolume(volume)
         }
-    }))*/
+    }))
 
     useEffect(() => {
         connectPlayer();
@@ -171,6 +180,12 @@ const MusicPlayer = forwardRef((props, ref) => {
 
     const previousTrack = () => {
         player.previousTrack()
+    }
+
+    const changeVolume = (vol) => {
+        player.setVolume(vol).then(() => {
+            console.log('Volume updated!');
+        });
     }
 
 
