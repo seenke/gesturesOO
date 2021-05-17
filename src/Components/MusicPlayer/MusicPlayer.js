@@ -76,6 +76,14 @@ const MusicPlayer = forwardRef((props, ref) => {
         },
         previous() {
             loadSong('previous')
+        },
+        volume_up() {
+            console.log('volume up')
+            //TODO
+        },
+        volume_down() {
+            console.log('volume down')
+            //TODO
         }
     }))
 
@@ -125,7 +133,6 @@ const MusicPlayer = forwardRef((props, ref) => {
 
     // State for knowing if music player is playing or not
     const [play, setPlay] = useState(false)
-
 
     // State for pointer in playlist
     const [songIndex, setSongIndex] = useState(0)

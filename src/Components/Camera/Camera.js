@@ -14,7 +14,7 @@ import { Wave, Random } from 'react-animated-text';
 
 
 //Custom gesture definition
-import { palmOpenGestureLeft, palmOpenGestureRight, palmOuterRight, palmOuterLeft} from './utils'
+import { palmOpenGestureLeft, palmOpenGestureRight, palmOuterRight, palmOuterLeft, thumbsDownGesture, thumbsUpGesture} from './utils'
 
 const useStyles = makeStyles((theme) => ({
     camera: {
@@ -79,7 +79,9 @@ function Camera(props) {
                     palmOpenGestureLeft,
                     palmOpenGestureRight,
                     palmOuterRight,
-                    palmOuterLeft
+                    palmOuterLeft,
+                    thumbsDownGesture,
+                    thumbsUpGesture
                 ])
                 const estimatedGestures = await GE.estimate(hand[0].landmarks, 7);
                 // console.log(estimatedGestures)
@@ -124,6 +126,12 @@ function Camera(props) {
                 break
             case 'palm_outer_left':
                 text = 'NEXT'
+                break
+            case 'thumbs_down':
+                text = 'VOLUME_DOWN'
+                break
+            case 'thumbs_up':
+                text = 'VOLUME_UP'
         }
 
         return text
