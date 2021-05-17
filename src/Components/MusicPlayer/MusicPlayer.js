@@ -8,12 +8,6 @@ import StopIcon from '@material-ui/icons/Stop'
 import { makeStyles } from '@material-ui/core/styles';
 import LinearProgress from '@material-ui/core/LinearProgress';
 
-import coverGam from '../../tracks/childishGambion/cover.jpeg';
-import songGam from '../../tracks/childishGambion/song.mp3'
-
-import coverKid from '../../tracks/kidCudi/cover.jpeg';
-import songKid from '../../tracks/kidCudi/song.mp3';
-
 const useStyles = makeStyles((theme) => ({
     icon: {
         height: 75,
@@ -35,11 +29,13 @@ const useStyles = makeStyles((theme) => ({
         margin: "auto",
         textAlign: 'center'
     },
+    albumCoverContainer: {
+        width: 600,
+        height: 600,
+    },
     albumCover: {
-        maxWidth: 600,
-        maxHeight: 600,
-        minWidth: 200,
-        minHeight: 200
+        width: '100%',
+        height: '100%'
     },
     songInfo: {
         color: 'white'
@@ -50,24 +46,36 @@ const useStyles = makeStyles((theme) => ({
     },
     iconButton: {
         color: 'white'
+    },
+    backdrop: {
+        zIndex: theme.zIndex.drawer + 1,
+        color: '#fff',
     }
 }));
 
+
+let player = null
+let position = 0
+let duration = 0
+let playStatus = false
 
 
 const MusicPlayer = forwardRef((props, ref) => {
 
     const classes = useStyles()
 
-    useImperativeHandle(ref, () => ({
+    //Get here https://developer.spotify.com/documentation/web-playback-sdk/quick-start/
+    const token = 'Insert token';
+
+    /*useImperativeHandle(ref, () => ({
 
         play() {
-            if(!play) {
+            if (!play) {
                 togglePlay()
             }
         },
         pause() {
-            if(play) {
+            if (play) {
                 togglePlay()
             }
         },
@@ -77,93 +85,122 @@ const MusicPlayer = forwardRef((props, ref) => {
         previous() {
             loadSong('previous')
         }
-    }))
-
-    const songs = [
-        {
-            song: songKid ,
-            image: coverKid,
-            author: 'Kid Cudi',
-            title: "Day 'N' Nite"
-        },
-        {
-            song: songGam,
-            image: coverGam,
-            author: 'Chidlish Gambino',
-            title: 'Redbone'
-        }
-    ]
-
-    const calculateProgress = () => {
-        setProgress(() => {
-            console.log("UPDATING", (song.currentTime / song.duration) * 100)
-            return (song.currentTime / song.duration) * 100
-        })
-        setTimeout(() => {
-            calculateProgress()
-        }, 100)
-    }
-
-    const loadSong = async (position) => {
-        let offset = position === 'next' ? 1 : -1
-        const newIndex = Math.abs ((songIndex + offset) % songs.length)
-
-        console.log(songs[offset])
-
-        await setSongIndex(newIndex)
-
-        await song.pause()
-        await setPlay(false)
-
-
-
-        await setSong(new Audio(songs[newIndex].song))
-        await setProgress(0)
-
-        console.log(play, songIndex, progress)
-    }
-
-    // State for knowing if music player is playing or not
-    const [play, setPlay] = useState(false)
-
-
-    // State for pointer in playlist
-    const [songIndex, setSongIndex] = useState(0)
-
-    //State for currently playing song
-    const [song, setSong] = useState(new Audio(songs[songIndex].song))
-
-    //State for progress
-    const [progress, setProgress] = useState(0)
+    }))*/
 
     useEffect(() => {
-        console.log("USE EFFECT")
-        song.addEventListener('ended', () => {
-            setPlay(false)
-        })
-        calculateProgress()
+        connectPlayer();
+        updateProgress()
     }, [])
 
-    const togglePlay = () => {
-        setPlay(previousPlay => {
-            previousPlay ? song.pause() : song.play()
-            return !previousPlay
+    const connectPlayer = async () => {
+        await waitForPlayer();
+        player = new window.Spotify.Player({
+            name: 'Web Playback SDK Quick Start Player',
+            getOAuthToken: cb => { cb(token); }
+        });
+        player.connect();
+        statusUpdates();
+    }
+
+    const waitForPlayer = () => {
+        return new Promise(resolve => {
+            if (window.Spotify) {
+                resolve();
+            } else {
+                window.onSpotifyWebPlaybackSDKReady = resolve;
+            }
         })
     }
 
+    const statusUpdates = () => {
+        // Error handling
+        player.addListener('initialization_error', ({ message }) => { console.error(message); });
+        player.addListener('authentication_error', ({ message }) => { console.error(message); });
+        player.addListener('account_error', ({ message }) => { console.error(message); });
+        player.addListener('playback_error', ({ message }) => { console.error(message); });
 
+        // Playback status updates
+        player.addListener('player_state_changed', state => {
+            console.log(state);
+            if (state && uri != state.track_window.current_track.uri) {
+                setUri(state.track_window.current_track.uri)
+                setTitle(state.track_window.current_track.name)
+                setImage(state.track_window.current_track.album.images[2].url)
+                setAuthor(state.track_window.current_track.artists.map(el => el.name).join(", "))
+                position = state.position
+                duration = state.duration
+            }
+        });
+
+        // Ready
+        player.addListener('ready', ({ device_id }) => {
+            console.log('Ready with Device ID', device_id);
+            transferPlayback(device_id)
+        });
+
+        // Not Ready
+        player.addListener('not_ready', ({ device_id }) => {
+            console.log('Device ID has gone offline', device_id);
+        });
+    }
+
+    const transferPlayback = (device_id) => {
+        fetch("https://api.spotify.com/v1/me/player", {
+            method: "PUT",
+            headers: {
+                authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                "device_ids": [device_id],
+                "play": false,
+            }),
+        });
+    }
+
+    const togglePlay = () => {
+        player.togglePlay().then(() => {
+            setPlay(!play)
+            playStatus = !playStatus
+        })
+    }
+
+    const nextTrack = () => {
+        player.nextTrack()
+    }
+
+    const previousTrack = () => {
+        player.previousTrack()
+    }
+
+
+    const [uri, setUri] = useState(null)
+    const [play, setPlay] = useState(false)
+    const [image, setImage] = useState(null)
+    const [author, setAuthor] = useState("None")
+    const [title, setTitle] = useState("None")
+    const [progress, setProgress] = useState(0)
+
+    //Prosim ubij za to
+    const updateProgress = () => {
+        if (playStatus) {
+            position = position + 100
+            setProgress(position / duration * 100)
+        }
+        setTimeout(() => { updateProgress() }, 100)
+    }
 
     return (
         <div className={classes.mainContainer}>
             <div>
-                <h2 className={classes.playerStatus}>{play? 'Playing now' : 'Currently paused'}</h2>
+                <h2 className={classes.playerStatus}>{play ? 'Playing now' : 'Currently paused'}</h2>
             </div>
-            <div>
-                <img src={songs[songIndex].image} className={classes.albumCover}/>
+            <div className={classes.albumCoverContainer}>
+                {image && <img src={image} className={classes.albumCover} />}
             </div>
             <div className={classes.songInfo}>
-                <h1>{songs[songIndex].author}</h1>
-                <p>{songs[songIndex].title}</p>
+                <h1>{title}</h1>
+                <p>{author}</p>
             </div>
             <div className={classes.root}>
                 <LinearProgress variant="determinate" value={progress} />
@@ -171,13 +208,13 @@ const MusicPlayer = forwardRef((props, ref) => {
             <div className={classes.mainContainer}>
                 <div className={classes.playerControls}>
                     <IconButton className={classes.iconButton}>
-                        <SkipPreviousIcon className={classes.icon} onClick={() => loadSong('previous')}/>
+                        <SkipPreviousIcon className={classes.icon} onClick={() => previousTrack()} />
                     </IconButton>
                     <IconButton className={classes.iconButton}>
-                        { play ? <PlayArrowIcon className={classes.iconPlay} onClick={togglePlay}/> : <StopIcon className={classes.iconPlay} onClick={togglePlay}/> }
+                        {!play ? <PlayArrowIcon className={classes.iconPlay} onClick={togglePlay} /> : <StopIcon className={classes.iconPlay} onClick={togglePlay} />}
                     </IconButton>
                     <IconButton className={classes.iconButton}>
-                        <SkipNextIcon className={classes.icon} onClick={()=> loadSong('next')}/>
+                        <SkipNextIcon className={classes.icon} onClick={() => nextTrack()} />
                     </IconButton>
                 </div>
             </div>
